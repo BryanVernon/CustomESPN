@@ -1,8 +1,8 @@
+// routes/games.js
 import express from 'express';
 
 const router = express.Router();
 
-// Fetch all games from the database
 router.get('/', async (req, res) => {
   try {
     const database = req.dbClient.db('ncaa');

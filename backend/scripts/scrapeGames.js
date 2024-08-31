@@ -20,26 +20,57 @@ async function scrapeGames() {
     const games = [];
     
     console.log('Processing data...');
-    // Extract game information
-    $('p a').each((index, element) => {
-      const teams = $(element).text().trim();
-      const url = $(element).attr('href').trim();
-      const timeNetworkText = $(element).text().split('|');
+    let currentWeek = ''; // Variable to hold current week
+    let currentDay = ''; // Variable to hold current day
 
-      // Filter out non-game entries
-      if (!teams.includes('Click or tap here for a live scoreboard')) {
-        const time = timeNetworkText[1]?.trim();
-        const network = timeNetworkText[2]?.trim();
+    $('h3').each((index, element) => {
+      const weekTitle = $(element).text().trim();
+      const isLiveStats = $(element).hasClass('live_stats'); // Check if the <h3> has the class 'live_stats'
 
-        // Ensure URL is correctly formed
-        const fullUrl = url.startsWith('http') ? url : `https://www.ncaa.com${url}`;
+      if (isLiveStats) {
+        console.log(`Skipping <h3> with class 'live_stats': "${weekTitle}"`);
+        return; // Skip to the next <h3> element
+      }
+      if (weekTitle.startsWith('Week')) {
+        currentWeek = weekTitle;
+        console.log(`Processing ${weekTitle}`);
 
-        // Add to games array
-        games.push({
-          teams,
-          time,
-          network,
-          url: fullUrl
+        // Get all content after the current <h3> up until the next <h3>
+        $(element).nextUntil('h3').each((i, siblingElement) => {
+          const pElement = $(siblingElement);
+          const anchor = pElement.find('a');
+
+          // Check if the paragraph is a day of the week
+          if (pElement.is('p') && anchor.length === 0) {
+            currentDay = pElement.text().trim();
+            console.log(`Detected day: ${currentDay}`);
+          } else {
+            // Extract game details
+            pElement.find('a').each((index, linkElement) => {
+              const teams = $(linkElement).text().trim();
+              const url = $(linkElement).attr('href').trim();
+              const timeNetworkText = $(linkElement).text().split('|');
+
+              // Filter out non-game entries
+              if (!teams.includes('Click or tap here for a live scoreboard')) {
+                const time = timeNetworkText[1]?.trim();
+                const network = timeNetworkText[2]?.trim();
+
+                // Ensure URL is correctly formed
+                const fullUrl = url.startsWith('http') ? url : `https://www.ncaa.com${url}`;
+
+                // Add to games array
+                games.push({
+                  week: currentWeek,
+                  day: currentDay,
+                  teams,
+                  time,
+                  network,
+                  url: fullUrl
+                });
+              }
+            });
+          }
         });
       }
     });
