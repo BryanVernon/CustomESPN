@@ -26,44 +26,61 @@ async function scrapeGames() {
     $('h3').each((index, element) => {
       const weekTitle = $(element).text().trim();
       const isLiveStats = $(element).hasClass('live_stats'); // Check if the <h3> has the class 'live_stats'
-
+    
       if (isLiveStats) {
         console.log(`Skipping <h3> with class 'live_stats': "${weekTitle}"`);
         return; // Skip to the next <h3> element
       }
+    
       if (weekTitle.startsWith('Week')) {
         currentWeek = weekTitle;
         console.log(`Processing ${weekTitle}`);
-
+    
         // Get all content after the current <h3> up until the next <h3>
         $(element).nextUntil('h3').each((i, siblingElement) => {
           const pElement = $(siblingElement);
           const anchor = pElement.find('a');
-
+    
+          // Regex pattern to match dates like "Saturday, Aug. 31"
+          const dayPattern = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),\s+[A-Za-z]+\.\s+\d{1,2}$/;
+    
           // Check if the paragraph is a day of the week
-          if (pElement.is('p') && anchor.length === 0) {
+          if (pElement.is('p') && dayPattern.test(pElement.text().trim())) {
             currentDay = pElement.text().trim();
             console.log(`Detected day: ${currentDay}`);
-          } else {
-            // Extract game details
+          } else if (anchor.length > 0) {
+            // Extract game details only if there is an anchor tag
             pElement.find('a').each((index, linkElement) => {
-              const teams = $(linkElement).text().trim();
+              let teams = $(linkElement).text().trim();
               const url = $(linkElement).attr('href').trim();
               const timeNetworkText = $(linkElement).text().split('|');
-
+    
               // Filter out non-game entries
               if (!teams.includes('Click or tap here for a live scoreboard')) {
+                
+                // Extract location if present in parentheses
+                let location = null;
+                const locationMatch = teams.match(/\((.*?)\)/);
+                if (locationMatch) {
+                  location = locationMatch[1].replace(/^in\s+/i, '').trim(); // Remove "in" if present
+                  teams = teams.replace(/\(.*?\)/, '').trim(); // Remove the location from teams string
+                }
+
+                // Remove everything after the team names (after "vs.")
+                teams = teams.split('|')[0].trim(); // Removes the time and network info
+
                 const time = timeNetworkText[1]?.trim();
                 const network = timeNetworkText[2]?.trim();
-
+    
                 // Ensure URL is correctly formed
                 const fullUrl = url.startsWith('http') ? url : `https://www.ncaa.com${url}`;
-
+    
                 // Add to games array
                 games.push({
                   week: currentWeek,
                   day: currentDay,
                   teams,
+                  location: location || '', // Set location to empty string if null
                   time,
                   network,
                   url: fullUrl
@@ -74,7 +91,7 @@ async function scrapeGames() {
         });
       }
     });
-
+    
     console.log(`Found ${games.length} games`);
 
     // Connect to MongoDB and insert data
