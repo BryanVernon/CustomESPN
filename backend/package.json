@@ -13,8 +13,10 @@
   "description": "",
   "dependencies": {
     "axios": "^1.7.5",
+    "cfb.js": "^4.3.2",
     "cheerio": "^1.0.0",
     "cors": "^2.8.5",
+    "csv-parser": "^3.0.0",
     "express": "^4.19.2",
     "mongodb": "^6.8.0",
     "mongoose": "^8.6.0",

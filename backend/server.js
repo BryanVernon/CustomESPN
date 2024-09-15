@@ -4,16 +4,17 @@ import cors from 'cors';
 import gamesRouter from './routes/games.js'; // Adjust the path based on your folder structure
 
 const app = express();
-const port = process.env.PORT || 3100;
+const port = process.env.PORT || 3101;
 
 // Connect to MongoDB
 const mongoUri = 'mongodb://localhost:27017/ncaa';
-const dbName = 'ncaa';
 let dbClient;
+let db;
 
 MongoClient.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(client => {
     dbClient = client;
+    db = client.db('ncaa');
     console.log('Connected to MongoDB');
   })
   .catch(error => console.error('Error connecting to MongoDB:', error));
@@ -26,10 +27,11 @@ app.use(express.urlencoded({ extended: true })); // for parsing application/x-ww
 // Set up the MongoDB client for routes
 app.use((req, res, next) => {
   req.dbClient = dbClient;
+  req.db = db; // Make sure to attach the db to the request object
   next();
 });
 
-// Routes
+// Use the games router
 app.use('/api/games', gamesRouter);
 
 // Start the server
