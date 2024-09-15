@@ -1,0 +1,53 @@
+/* GameList.css */
+
+.game-list {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f4f4f4;
+  }
+  
+  .game-list ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .game-item {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+  }
+  
+  .game-item:last-child {
+    border-bottom: none;
+  }
+  
+  .game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .game-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+  }
+  
+  .game-info {
+    font-size: 0.9em;
+    color: #555;
+  }
+  
+  .game-details {
+    margin-top: 10px;
+  }
+  
+  .game-details p {
+    margin: 5px 0;
+  }
+  
+  .game-details strong {
+    color: #333;
+  }
+  
