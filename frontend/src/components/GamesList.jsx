@@ -4,6 +4,7 @@ import './GameList.css'; // Import CSS file for styling
 
 const GameList = () => {
   const [games, setGames] = useState([]);
+  const [records, setRecords] = useState([]); // Add state for records
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedWeek, setSelectedWeek] = useState('All');
@@ -11,8 +12,11 @@ const GameList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:3101/api/games'); // Adjust the URL as needed
-        setGames(response.data); // Set the games state with the fetched data
+        const gamesResponse = await axios.get('http://localhost:3101/api/games'); // Adjust the URL as needed
+        setGames(gamesResponse.data); // Set the games state with the fetched data
+        
+        const recordsResponse = await axios.get('http://localhost:3101/api/records'); // Adjust the URL as needed
+        setRecords(recordsResponse.data); // Set the records state with the fetched data
       } catch (err) {
         setError(err.message);
       } finally {
@@ -98,15 +102,33 @@ const GameList = () => {
             <div key={date} className="game-day">
               <h3>{date}</h3>
               <ul>
-                {filteredGames[week][date].map((game) => (
-                  <li key={game._id}>
-                    <h4>{formatTime(game.start_date)}</h4> {/* Show the time for each game here */}
-                    <h5>
-                      {game.home_team} {game.home_points !== null ? `(${game.home_points})` : ''} at {game.away_team} {game.away_points !== null ? `(${game.away_points})` : ''}
-                    </h5>
-                    <p>{game.venue}</p>
-                  </li>
-                ))}
+                {filteredGames[week][date].map((game) => {
+                  const homeRecord = records.find(record => record.team === game.home_team) || {};
+                  const awayRecord = records.find(record => record.team === game.away_team) || {};
+
+                  // Determine the bold score
+                  const homeScore = game.home_points;
+                  const awayScore = game.away_points;
+                  const isHomeTeamWinning = homeScore > awayScore;
+                  const homeScoreDisplay = isHomeTeamWinning ? <strong>{homeScore}</strong> : homeScore;
+                  const awayScoreDisplay = !isHomeTeamWinning ? <strong>{awayScore}</strong> : awayScore;
+
+                  return (
+                    <li key={game._id}>
+                      <h4>{formatTime(game.start_date)}</h4> {/* Show the time for each game here */}
+                      <h5>
+                        {game.home_team} ({homeRecord.wins || 0}-{homeRecord.losses || 0}) 
+                        at {game.away_team} ({awayRecord.wins || 0}-{awayRecord.losses || 0})
+                      </h5>
+                      {homeScore !== null && awayScore !== null ? (
+                        <p>
+                          Final Score: {game.home_team} {homeScoreDisplay} {game.away_team} {awayScoreDisplay}
+                        </p>
+                      ) : null}
+                      <p>{game.venue}</p>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           ))}
