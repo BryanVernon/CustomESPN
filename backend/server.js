@@ -2,7 +2,7 @@ import express from 'express';
 import { MongoClient } from 'mongodb';
 import cors from 'cors';
 import gamesRouter from './routes/games.js'; // Adjust the path based on your folder structure
-
+import recordsRouter from './routes/records.js'; // Adjust the path based on your folder structure
 const app = express();
 const port = process.env.PORT || 3101;
 
@@ -33,6 +33,7 @@ app.use((req, res, next) => {
 
 // Use the games router
 app.use('/api/games', gamesRouter);
+app.use('/api/records', recordsRouter);
 
 // Start the server
 app.listen(port, () => {
