@@ -8,6 +8,7 @@ const GameList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedWeek, setSelectedWeek] = useState('All');
+  const [rankings, setRankings] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,6 +18,10 @@ const GameList = () => {
         
         const recordsResponse = await axios.get('http://localhost:3101/api/records'); // Adjust the URL as needed
         setRecords(recordsResponse.data); // Set the records state with the fetched data
+        
+        const rankingsResponse = await axios.get('http://localhost:3101/api/rankings'); // Adjust the URL as needed
+        setRankings(rankingsResponse.data); // Set the rankings state with the fetched data
+      
       } catch (err) {
         setError(err.message);
       } finally {
@@ -51,6 +56,17 @@ const GameList = () => {
       console.error('Error formatting time:', e);
       return 'Invalid Time';
     }
+  };
+
+  // Function to get team ranking by team name
+  const getTeamRanking = (teamName) => {
+    const teamRanking = rankings.find((ranking) =>
+      ranking.team.name === teamName || ranking.team.nickname === teamName
+    );
+    if (teamRanking) {
+      return `#${teamRanking.current}`;
+    }
+    return ''; // Return empty string if no ranking found
   };
 
   // Group games by week and day
@@ -117,12 +133,12 @@ const GameList = () => {
                     <li key={game._id}>
                       <h4>{formatTime(game.start_date)}</h4> {/* Show the time for each game here */}
                       <h5>
-                        {game.home_team} ({homeRecord.wins || 0}-{homeRecord.losses || 0}) 
-                        at {game.away_team} ({awayRecord.wins || 0}-{awayRecord.losses || 0})
+                        {getTeamRanking(game.home_team)} {game.home_team} ({homeRecord.wins || 0}-{homeRecord.losses || 0}) 
+                        vs {getTeamRanking(game.away_team)} {game.away_team} ({awayRecord.wins || 0}-{awayRecord.losses || 0})
                       </h5>
                       {homeScore !== null && awayScore !== null ? (
                         <p>
-                          Final Score: {game.home_team} {homeScoreDisplay} {game.away_team} {awayScoreDisplay}
+                          Final Score: {game.home_team} {homeScoreDisplay} vs {game.away_team} {awayScoreDisplay}
                         </p>
                       ) : null}
                       <p>{game.venue}</p>

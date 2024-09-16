@@ -6,6 +6,7 @@ const uri = 'mongodb://localhost:27017';
 const dbName = 'ncaa';
 const collectionName = 'games';
 const recordsCollectionName = 'records';
+const rankingsCollectionName = 'rankings';
 
 const apiKey = 'TWP+UHEydRUg/wmxx8jEEpxsbkOggGjc7gUousSHei5H8kEl3qSTdU1mzg0PLrz4'; // Replace with your actual API key
 
@@ -20,6 +21,7 @@ async function uploadWeek1GamesToMongoDB() {
     const db = client.db(dbName);
     const collection = db.collection(collectionName);
     const recordsCollection = db.collection(recordsCollectionName);
+    const rankingsCollection = db.collection(rankingsCollectionName);
 
     // Clear existing data from the collections
     await collection.deleteMany({});
@@ -27,6 +29,9 @@ async function uploadWeek1GamesToMongoDB() {
     
     await recordsCollection.deleteMany({});
     console.log("Cleared existing data from records collection");
+
+    await rankingsCollection.deleteMany({});
+    console.log("Cleared existing data from rankings collection");
 
     // Fetch games data
     const year = 2024;
@@ -95,6 +100,37 @@ async function uploadWeek1GamesToMongoDB() {
       // Insert the fetched records data into MongoDB
       const recordsInsertResult = await recordsCollection.insertMany(recordsData);
       console.log(`Inserted ${recordsInsertResult.insertedCount} records documents`);
+    }
+
+    const rankingsResponse = await axios.get(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings`);
+    console.log('Rankings API called successfully. Returned data:', rankingsResponse.data);
+
+    // Filter and prepare rankings data for insertion into MongoDB
+    const rankingsData = rankingsResponse.data.rankings[0].ranks.map(rank => ({
+      current: rank.current,
+      previous: rank.previous,
+      points: rank.points,
+      firstPlaceVotes: rank.firstPlaceVotes || 0,
+      trend: rank.trend,
+      team: {
+        id: rank.team.id,
+        location: rank.team.location,
+        name: rank.team.name,
+        nickname: rank.team.nickname,
+        abbreviation: rank.team.abbreviation,
+        logo: rank.team.logo,
+        recordSummary: rank.recordSummary
+      },
+      date: rank.date,
+      lastUpdated: rank.lastUpdated
+    }));
+
+    if (rankingsData.length === 0) {
+      console.log("No rankings found.");
+    } else {
+      // Insert the fetched rankings data into MongoDB
+      const rankingsInsertResult = await rankingsCollection.insertMany(rankingsData);
+      console.log(`Inserted ${rankingsInsertResult.insertedCount} rankings documents`);
     }
 
   } catch (err) {
