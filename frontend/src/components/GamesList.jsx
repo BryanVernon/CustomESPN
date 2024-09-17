@@ -9,6 +9,7 @@ const GameList = () => {
   const [error, setError] = useState(null);
   const [selectedWeek, setSelectedWeek] = useState('All');
   const [rankings, setRankings] = useState([]);
+  const [filterType, setFilterType] = useState('All'); // Add state for filter type
 
   useEffect(() => {
     const fetchData = async () => {
@@ -69,6 +70,11 @@ const GameList = () => {
     return ''; // Return empty string if no ranking found
   };
 
+  // Function to check if either team is ranked in Top 25
+  const isRanked = (homeTeam, awayTeam) => {
+    return getTeamRanking(homeTeam) || getTeamRanking(awayTeam);
+  };
+
   // Group games by week and day
   const groupedGames = games.reduce((acc, game) => {
     const week = `Week ${game.week || 'N/A'}`;
@@ -88,10 +94,27 @@ const GameList = () => {
     return acc;
   }, {});
 
-  // Filter games by selected week
-  const filteredGames = selectedWeek === 'All'
-    ? groupedGames
-    : { [`Week ${selectedWeek}`]: groupedGames[`Week ${selectedWeek}`] };
+  // Filter games by selected week and filter type
+  const filteredGames = Object.keys(groupedGames).reduce((acc, week) => {
+    const days = groupedGames[week];
+    const filteredDays = Object.keys(days).reduce((dayAcc, date) => {
+      const gamesList = days[date].filter((game) => {
+        const isTexasGame = game.home_team === 'Texas' || game.away_team === 'Texas';
+        const isTop25Game = filterType === 'Top 25' ? isRanked(game.home_team, game.away_team) : true;
+        const isWeekMatch = selectedWeek === 'All' || week === `Week ${selectedWeek}`;
+
+        return isWeekMatch && (filterType === 'Texas' ? isTexasGame : isTop25Game);
+      });
+      if (gamesList.length > 0) {
+        dayAcc[date] = gamesList;
+      }
+      return dayAcc;
+    }, {});
+    if (Object.keys(filteredDays).length > 0) {
+      acc[week] = filteredDays;
+    }
+    return acc;
+  }, {});
 
   return (
     <div className="game-list">
@@ -109,6 +132,16 @@ const GameList = () => {
               Week {index + 1}
             </option>
           ))}
+        </select>
+        <label htmlFor="filter-select">Filter by Type:</label>
+        <select
+          id="filter-select"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+        >
+          <option value="All">All Games</option>
+          <option value="Top 25">Top 25 Games</option>
+          <option value="Texas">Texas Games</option>
         </select>
       </div>
       {Object.keys(filteredGames).map((week) => (
