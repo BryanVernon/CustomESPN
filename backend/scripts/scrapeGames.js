@@ -8,6 +8,7 @@ const collectionName = 'games';
 const recordsCollectionName = 'records';
 const rankingsCollectionName = 'rankings';
 const bettingCollectionName = 'betting';
+const mediaCollectionName = 'media';
 
 const apiKey = 'TWP+UHEydRUg/wmxx8jEEpxsbkOggGjc7gUousSHei5H8kEl3qSTdU1mzg0PLrz4'; // Replace with your actual API key
 
@@ -24,6 +25,7 @@ async function uploadWeek1GamesToMongoDB() {
     const recordsCollection = db.collection(recordsCollectionName);
     const rankingsCollection = db.collection(rankingsCollectionName);
     const bettingCollection = db.collection(bettingCollectionName);
+    const mediaCollection = db.collection(mediaCollectionName);
 
     // Clear existing data from the collections
     await collection.deleteMany({});
@@ -37,6 +39,9 @@ async function uploadWeek1GamesToMongoDB() {
 
     await bettingCollection.deleteMany({});
     console.log("Cleared existing data from betting collection");
+
+    await mediaCollection.deleteMany({});
+    console.log("Cleared existing data from media collection");
 
     // Fetch games data
     const year = 2024;
@@ -69,11 +74,11 @@ async function uploadWeek1GamesToMongoDB() {
     }));
 
     if (gamesData.length === 0) {
-      console.log("No FBS games found for the specified week.");
+      console.log("No games found for the specified week.");
     } else {
       // Insert the fetched games data into MongoDB
       const insertResult = await collection.insertMany(gamesData);
-      console.log(`Inserted ${insertResult.insertedCount} FBS game documents`);
+      console.log(`Inserted ${insertResult.insertedCount} game documents`);
     }
 
     // Fetch records data
@@ -107,6 +112,7 @@ async function uploadWeek1GamesToMongoDB() {
       console.log(`Inserted ${recordsInsertResult.insertedCount} records documents`);
     }
 
+    // Fetch rankings data
     const rankingsResponse = await axios.get(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings`);
     console.log('Rankings API called successfully. Returned data:');
 
@@ -124,7 +130,7 @@ async function uploadWeek1GamesToMongoDB() {
         nickname: rank.team.nickname,
         abbreviation: rank.team.abbreviation,
         logo: rank.team.logo,
-        recordSummary: rank.recordSummary
+        recordSummary: rank.team.recordSummary
       },
       date: rank.date,
       lastUpdated: rank.lastUpdated
@@ -179,6 +185,34 @@ async function uploadWeek1GamesToMongoDB() {
       // Insert the fetched betting data into MongoDB
       const bettingInsertResult = await bettingCollection.insertMany(bettingData);
       console.log(`Inserted ${bettingInsertResult.insertedCount} betting documents`);
+    }
+
+    // Fetch media data
+    const mediaResponse = await axios.get(`https://api.collegefootballdata.com/games/media`, {
+      params: {
+        year,
+      },
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+
+    console.log('Media API called successfully. Returned data:');
+
+    // Filter and prepare media data for insertion into MongoDB
+    const mediaData = mediaResponse.data.map(media => ({
+      gameId: media.id,
+      mediaType: media.mediaType,
+      outlet: media.outlet
+    }));
+
+    if (mediaData.length === 0) {
+      console.log("No media data found.");
+    } else {
+      // Insert the fetched media data into MongoDB
+      const mediaInsertResult = await mediaCollection.insertMany(mediaData);
+      console.log(`Inserted ${mediaInsertResult.insertedCount} media documents`);
     }
 
   } catch (err) {

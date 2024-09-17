@@ -11,7 +11,7 @@ const GameList = () => {
   const [rankings, setRankings] = useState([]);
   const [filterType, setFilterType] = useState('All');
   const [bettingData, setBettingData] = useState([]);
-
+  const [mediaData, setMediaData] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -26,10 +26,8 @@ const GameList = () => {
       
         const bettingResponse = await axios.get('http://localhost:3101/api/betting');
         setBettingData(bettingResponse.data);
-        console.log('Betting Data:', bettingResponse.data);
-        bettingResponse.data.forEach(bet => {
-          console.log(`Bet ID ${bet.id}:`, bet.formattedSpread);
-        });
+        const mediaResponse = await axios.get('http://localhost:3101/api/media');
+        setMediaData(mediaResponse.data);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -56,13 +54,14 @@ const GameList = () => {
   const formatTime = (dateStr) => {
     try {
       const date = new Date(dateStr);
-      const options = { hour: '2-digit', minute: '2-digit', hour12: true, timeZoneName: 'short' };
-      return new Intl.DateTimeFormat('en-US', options).format(date);
+      const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+      return date.toLocaleString(undefined, options);
     } catch (e) {
       console.error('Error formatting time:', e);
       return 'Invalid Time';
     }
   };
+  
 
   const getTeamRanking = (teamName) => {
     const teamRanking = rankings.find((ranking) =>
@@ -160,6 +159,7 @@ const GameList = () => {
                   const overUnder = betting.lines && betting.lines.length > 0 ? betting.lines[0].overUnder : null;
                   const homeScore = game.home_points !== undefined ? game.home_points : 'N/A';
                   const awayScore = game.away_points !== undefined ? game.away_points : 'N/A';
+                  const media = mediaData.find(media => media.gameId === game.id) || {};
 
                   // Determine if the home or away score should be bolded
                   const homeScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A' && homeScore > awayScore)
@@ -171,12 +171,11 @@ const GameList = () => {
                     : awayScore;
 
                   // Only show final score if both home and away scores are not 'N/A'
-                  const finalScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A') && (
+                  const finalScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A' && homeScore !== null && awayScore !== null) && (
                     <p>
                       Final Score: {getTeamRanking(game.home_team)} {game.home_team} {homeScoreDisplay} vs {getTeamRanking(game.away_team)} {game.away_team} {awayScoreDisplay}
                     </p>
                   );
-
                   // Adjust spread for display
                   const spreadDisplay = formattedSpread && <p>Spread: {formattedSpread}</p>;
                   // Over/Under display
@@ -197,6 +196,11 @@ const GameList = () => {
                       <p>{game.venue}</p>
                       {spreadDisplay}
                       {overUnderDisplay}
+                      {media.outlet && (
+                        <div className="media-info">
+                          <p><strong>Outlet:</strong> {media.outlet}</p>
+                        </div>
+                      )}
                     </li>
                   );
                 })}

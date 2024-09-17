@@ -5,6 +5,7 @@ import gamesRouter from './routes/games.js'; // Adjust the path based on your fo
 import recordsRouter from './routes/records.js'; // Adjust the path based on your folder structure
 import rankingsRouter from './routes/rankings.js'; // Adjust the path based on your folder structure
 import bettingRouter from './routes/betting.js'; // Adjust the path based on your folder structure
+import mediaRouter from './routes/media.js'; // Adjust the path based on your folder structure
 
 const app = express();
 const port = process.env.PORT || 3101;
@@ -39,6 +40,7 @@ app.use('/api/games', gamesRouter);
 app.use('/api/records', recordsRouter);
 app.use('/api/rankings', rankingsRouter);
 app.use('/api/betting', bettingRouter);
+app.use('/api/media', mediaRouter);
 
 // Start the server
 app.listen(port, () => {
