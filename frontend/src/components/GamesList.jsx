@@ -120,7 +120,7 @@ const GameList = () => {
     <div className="game-list">
       <h1>College Schedule</h1>
       <div className="filter">
-        <label htmlFor="week-select">Filter by Week:</label>
+        <label htmlFor="week-select">Filter by Week: </label>
         <select
           id="week-select"
           value={selectedWeek}
@@ -133,7 +133,7 @@ const GameList = () => {
             </option>
           ))}
         </select>
-        <label htmlFor="filter-select">Filter by Type:</label>
+        <label htmlFor="filter-select"> Filter by Type: </label>
         <select
           id="filter-select"
           value={filterType}
