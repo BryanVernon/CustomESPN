@@ -7,6 +7,7 @@ const dbName = 'ncaa';
 const collectionName = 'games';
 const recordsCollectionName = 'records';
 const rankingsCollectionName = 'rankings';
+const bettingCollectionName = 'betting';
 
 const apiKey = 'TWP+UHEydRUg/wmxx8jEEpxsbkOggGjc7gUousSHei5H8kEl3qSTdU1mzg0PLrz4'; // Replace with your actual API key
 
@@ -22,6 +23,7 @@ async function uploadWeek1GamesToMongoDB() {
     const collection = db.collection(collectionName);
     const recordsCollection = db.collection(recordsCollectionName);
     const rankingsCollection = db.collection(rankingsCollectionName);
+    const bettingCollection = db.collection(bettingCollectionName);
 
     // Clear existing data from the collections
     await collection.deleteMany({});
@@ -32,6 +34,9 @@ async function uploadWeek1GamesToMongoDB() {
 
     await rankingsCollection.deleteMany({});
     console.log("Cleared existing data from rankings collection");
+
+    await bettingCollection.deleteMany({});
+    console.log("Cleared existing data from betting collection");
 
     // Fetch games data
     const year = 2024;
@@ -48,7 +53,7 @@ async function uploadWeek1GamesToMongoDB() {
       }
     });
 
-    console.log('Games API called successfully. Returned data:', gamesResponse.data);
+    console.log('Games API called successfully. Returned data:');
 
     // Filter and prepare data for insertion into MongoDB
     const gamesData = gamesResponse.data.map(game => ({
@@ -82,7 +87,7 @@ async function uploadWeek1GamesToMongoDB() {
       }
     });
 
-    console.log('Records API called successfully. Returned data:', recordsResponse.data);
+    console.log('Records API called successfully. Returned data:');
 
     // Filter and prepare records data for insertion into MongoDB
     const recordsData = recordsResponse.data.map(record => ({
@@ -103,7 +108,7 @@ async function uploadWeek1GamesToMongoDB() {
     }
 
     const rankingsResponse = await axios.get(`https://site.api.espn.com/apis/site/v2/sports/football/college-football/rankings`);
-    console.log('Rankings API called successfully. Returned data:', rankingsResponse.data);
+    console.log('Rankings API called successfully. Returned data:');
 
     // Filter and prepare rankings data for insertion into MongoDB
     const rankingsData = rankingsResponse.data.rankings[0].ranks.map(rank => ({
@@ -131,6 +136,49 @@ async function uploadWeek1GamesToMongoDB() {
       // Insert the fetched rankings data into MongoDB
       const rankingsInsertResult = await rankingsCollection.insertMany(rankingsData);
       console.log(`Inserted ${rankingsInsertResult.insertedCount} rankings documents`);
+    }
+
+    // Fetch betting data
+    const bettingResponse = await axios.get(`https://api.collegefootballdata.com/lines`, {
+      params: {
+        year  // Adjust the week number if needed
+      },
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+
+    console.log('Betting API called successfully. Returned data:');
+
+    // Filter and prepare betting data for insertion into MongoDB
+    const bettingData = bettingResponse.data.map(game => ({
+      id: game.id,
+      season: game.season,
+      week: game.week,
+      startDate: game.startDate,
+      homeTeam: game.homeTeam,
+      homeConference: game.homeConference,
+      homeScore: game.homeScore,
+      awayTeam: game.awayTeam,
+      awayConference: game.awayConference,
+      awayScore: game.awayScore,
+      lines: game.lines.map(line => ({
+        provider: line.provider,
+        spread: line.spread,
+        formattedSpread: line.formattedSpread,
+        overUnder: line.overUnder,
+        homeMoneyline: line.homeMoneyline,
+        awayMoneyline: line.awayMoneyline
+      }))
+    }));
+
+    if (bettingData.length === 0) {
+      console.log("No betting data found.");
+    } else {
+      // Insert the fetched betting data into MongoDB
+      const bettingInsertResult = await bettingCollection.insertMany(bettingData);
+      console.log(`Inserted ${bettingInsertResult.insertedCount} betting documents`);
     }
 
   } catch (err) {
