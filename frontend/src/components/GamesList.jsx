@@ -26,7 +26,10 @@ const GameList = () => {
       
         const bettingResponse = await axios.get('http://localhost:3101/api/betting');
         setBettingData(bettingResponse.data);
-
+        console.log('Betting Data:', bettingResponse.data);
+        bettingResponse.data.forEach(bet => {
+          console.log(`Bet ID ${bet.id}:`, bet.formattedSpread);
+        });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -153,7 +156,7 @@ const GameList = () => {
                   const homeRecord = records.find(record => record.team === game.home_team) || {};
                   const awayRecord = records.find(record => record.team === game.away_team) || {};
                   const betting = bettingData.find(bet => bet.id === game.id) || {};
-                  const spread = betting.lines && betting.lines.length > 0 ? betting.lines[0].spread : null;
+                  const formattedSpread = betting.lines && betting.lines.length > 0 ? betting.lines[0].formattedSpread : null;
                   const overUnder = betting.lines && betting.lines.length > 0 ? betting.lines[0].overUnder : null;
                   const homeScore = game.home_points !== undefined ? game.home_points : 'N/A';
                   const awayScore = game.away_points !== undefined ? game.away_points : 'N/A';
@@ -175,17 +178,7 @@ const GameList = () => {
                   );
 
                   // Adjust spread for display
-                  let spreadDisplay = null;
-                  if (spread !== null) {
-                    if (spread > 0) {
-                      // Positive spread, attach the away team and change to negative
-                      spreadDisplay = <p>Spread: {-spread} {game.away_team}</p>;
-                    } else if (spread < 0) {
-                      // Negative spread, attach the home team
-                      spreadDisplay = <p>Spread: {spread} {game.home_team}</p>;
-                    }
-                  }
-
+                  const spreadDisplay = formattedSpread && <p>Spread: {formattedSpread}</p>;
                   // Over/Under display
                   const overUnderDisplay = overUnder !== null && <p>Over/Under: {overUnder}</p>;
 
