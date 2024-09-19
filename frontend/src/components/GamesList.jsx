@@ -11,7 +11,8 @@ const GameList = () => {
   const [rankings, setRankings] = useState([]);
   const [filterType, setFilterType] = useState('All');
   const [bettingData, setBettingData] = useState([]);
-  const [mediaData, setMediaData] = useState([]);
+  const [mediaData, setMediaData] = useState([]); 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -62,7 +63,6 @@ const GameList = () => {
     }
   };
   
-
   const getTeamRanking = (teamName) => {
     const teamRanking = rankings.find((ranking) =>
       ranking.team.name === teamName || ranking.team.nickname === teamName
@@ -118,7 +118,7 @@ const GameList = () => {
 
   return (
     <div className="game-list">
-      <h1>College Schedule</h1>
+      <h1>College Football Schedule</h1>
       <div className="filter">
         <label htmlFor="week-select">Filter by Week: </label>
         <select
@@ -131,7 +131,7 @@ const GameList = () => {
             <option key={index} value={index + 1}>
               Week {index + 1}
             </option>
-          ))}
+          ))} 
         </select>
         <label htmlFor="filter-select"> Filter by Type: </label>
         <select
@@ -148,8 +148,8 @@ const GameList = () => {
         <div key={week} className="game-week">
           <h2>{week}</h2>
           {Object.keys(filteredGames[week]).map((date) => (
-            <div key={date} className="game-day">
-              <h3>{date}</h3>
+            <div key={date} className="game-card">
+              <h3 className="game-date">{date}</h3>
               <ul>
                 {filteredGames[week][date].map((game) => {
                   const homeRecord = records.find(record => record.team === game.home_team) || {};
@@ -161,7 +161,6 @@ const GameList = () => {
                   const awayScore = game.away_points !== undefined ? game.away_points : 'N/A';
                   const media = mediaData.find(media => media.gameId === game.id) || {};
 
-                  // Determine if the home or away score should be bolded
                   const homeScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A' && homeScore > awayScore)
                     ? <strong>{homeScore}</strong>
                     : homeScore;
@@ -170,46 +169,62 @@ const GameList = () => {
                     ? <strong>{awayScore}</strong>
                     : awayScore;
 
-                  // Only show final score if both home and away scores are not 'N/A'
                   const finalScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A' && homeScore !== null && awayScore !== null) && (
                     <p>
                       Final Score: {getTeamRanking(game.home_team)} {game.home_team} {homeScoreDisplay} vs {getTeamRanking(game.away_team)} {game.away_team} {awayScoreDisplay}
                     </p>
                   );
-                  // Adjust spread for display
+                  
                   const spreadDisplay = formattedSpread && <p>Spread: {formattedSpread}</p>;
-                  // Over/Under display
                   const overUnderDisplay = overUnder !== null && <p>Over/Under: {overUnder}</p>;
 
                   return (
                     <li key={game._id}>
-                      <h4>{formatTime(game.start_date)}</h4>
-                      <h5>
-                        {getTeamRanking(game.away_team)} {game.away_team} 
-                        {(awayRecord.wins > 0 || awayRecord.losses > 0) && ` (${awayRecord.wins || 0}-${awayRecord.losses || 0}) `} 
-                        {''} at {getTeamRanking(game.home_team)} {game.home_team} 
-                        {(homeRecord.wins > 0 || homeRecord.losses > 0) && ` (${homeRecord.wins || 0}-${homeRecord.losses || 0})`}
-                      </h5>
-
-
+                      <div className="game-info">
+                        <div className="game-details game-details-left">
+                          <div className="team-info">
+                            <span className="team-name">
+                              {getTeamRanking(game.away_team)} {game.away_team}
+                            </span>
+                            <span className="team-record">
+                              {(awayRecord.wins > 0 || awayRecord.losses > 0) && ` (${awayRecord.wins || 0}-${awayRecord.losses || 0})`}
+                            </span>
+                          </div>
+                          <div className="team-info">
+                            <span className="team-name">
+                              at {getTeamRanking(game.home_team)} {game.home_team}
+                            </span>
+                            <span className="team-record">
+                              {(homeRecord.wins > 0 || homeRecord.losses > 0) && ` (${homeRecord.wins || 0}-${homeRecord.losses || 0})`}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="game-details game-details-right">
+                          <h4>{formatTime(game.start_date)}</h4>
+                          <p>{game.venue}</p>
+                          {media.outlet && (
+                            <div className="media-info">
+                              <p>Outlet: {media.outlet}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
                       {finalScoreDisplay}
-                      <p>{game.venue}</p>
-                      {spreadDisplay}
-                      {overUnderDisplay}
-                      {media.outlet && (
-                        <div className="media-info">
-                          <p><strong>Outlet:</strong> {media.outlet}</p>
+                      {(spreadDisplay || overUnderDisplay) && (
+                        <div className="betting-card">
+                          <div className="betting-info">
+                          <p><strong>Betting Lines:</strong></p>{spreadDisplay} {overUnderDisplay}
+                          </div>
                         </div>
                       )}
+                      <div className="game-separator"></div>
                     </li>
+
                   );
                 })}
               </ul>
             </div>
           ))}
-
-
-
         </div>
       ))}
     </div>

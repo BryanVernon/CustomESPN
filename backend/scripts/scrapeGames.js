@@ -44,6 +44,7 @@ async function uploadWeek1GamesToMongoDB() {
     console.log("Cleared existing data from media collection");
 
     // Fetch games data
+    
     const year = 2024;
     const division = 'fbs';
     
