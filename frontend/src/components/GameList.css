@@ -34,6 +34,7 @@
 ul {
   list-style-type: none;
   padding-left: 0;
+  margin-bottom: 0px;
 }
 
 .media-info p {
@@ -117,5 +118,11 @@ ul {
   display: flex;
   gap: 5px; /* Adjust space between betting lines */
   font-weight: normal; /* Ensure normal font weight */
+}
+.team-logo img {
+  width: 30px; /* Adjust size as needed */
+  height: auto; /* Maintain aspect ratio */
+  margin-right: 8px; /* Space between logo and team name */
+  vertical-align: middle; /* Align with text */
 }
 

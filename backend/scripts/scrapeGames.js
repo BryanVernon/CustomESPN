@@ -9,6 +9,7 @@ const recordsCollectionName = 'records';
 const rankingsCollectionName = 'rankings';
 const bettingCollectionName = 'betting';
 const mediaCollectionName = 'media';
+const teamsCollectionName = 'teams';
 
 const apiKey = 'TWP+UHEydRUg/wmxx8jEEpxsbkOggGjc7gUousSHei5H8kEl3qSTdU1mzg0PLrz4'; // Replace with your actual API key
 
@@ -26,7 +27,7 @@ async function uploadWeek1GamesToMongoDB() {
     const rankingsCollection = db.collection(rankingsCollectionName);
     const bettingCollection = db.collection(bettingCollectionName);
     const mediaCollection = db.collection(mediaCollectionName);
-
+    const teamsCollection = db.collection(teamsCollectionName);
     // Clear existing data from the collections
     await collection.deleteMany({});
     console.log("Cleared existing data from games collection");
@@ -43,6 +44,8 @@ async function uploadWeek1GamesToMongoDB() {
     await mediaCollection.deleteMany({});
     console.log("Cleared existing data from media collection");
 
+    await teamsCollection.deleteMany({});
+    console.log("Cleared existing data from logos collection");
     // Fetch games data
     
     const year = 2024;
@@ -215,7 +218,29 @@ async function uploadWeek1GamesToMongoDB() {
       const mediaInsertResult = await mediaCollection.insertMany(mediaData);
       console.log(`Inserted ${mediaInsertResult.insertedCount} media documents`);
     }
+    // Fetch logos data
+    const teamsResponse = await axios.get(`https://api.collegefootballdata.com/teams`, {
+      headers: {
+        'accept': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+    console.log('Logos API called successfully. Returned data:');
+    // Filter and prepare logos data for insertion into MongoDB
+    const teamsData = teamsResponse.data.map(team => ({
+      id: team.id,
+      school: team.school,
+      mascot: team.mascot,
+      logos: team.logos,
 
+    }));
+    if (teamsData.length === 0) {
+      console.log("No logos found.");
+    } else {
+      // Insert the fetched logos data into MongoDB
+      const teamsInsertResult = await teamsCollection.insertMany(teamsData);
+      console.log(`Inserted ${teamsInsertResult.insertedCount} logos documents`);
+    }
   } catch (err) {
     console.error("Error:", err);
   } finally {

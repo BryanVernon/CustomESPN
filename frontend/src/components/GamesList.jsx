@@ -12,6 +12,7 @@ const GameList = () => {
   const [filterType, setFilterType] = useState('All');
   const [bettingData, setBettingData] = useState([]);
   const [mediaData, setMediaData] = useState([]); 
+  const [teamsData, setTeamsData] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,8 +28,13 @@ const GameList = () => {
       
         const bettingResponse = await axios.get('http://localhost:3101/api/betting');
         setBettingData(bettingResponse.data);
+        
         const mediaResponse = await axios.get('http://localhost:3101/api/media');
         setMediaData(mediaResponse.data);
+        
+        const teamsResponse = await axios.get('http://localhost:3101/api/teams');
+        setTeamsData(teamsResponse.data);
+        
       } catch (err) {
         setError(err.message);
       } finally {
@@ -62,15 +68,12 @@ const GameList = () => {
       return 'Invalid Time';
     }
   };
-  
+
   const getTeamRanking = (teamName) => {
     const teamRanking = rankings.find((ranking) =>
       ranking.team.name === teamName || ranking.team.nickname === teamName
     );
-    if (teamRanking) {
-      return `#${teamRanking.current}`;
-    }
-    return '';
+    return teamRanking ? `#${teamRanking.current}` : '';
   };
 
   const isRanked = (homeTeam, awayTeam) => {
@@ -91,7 +94,6 @@ const GameList = () => {
     }
 
     acc[week][date].push(game);
-
     return acc;
   }, {});
 
@@ -160,6 +162,8 @@ const GameList = () => {
                   const homeScore = game.home_points !== undefined ? game.home_points : 'N/A';
                   const awayScore = game.away_points !== undefined ? game.away_points : 'N/A';
                   const media = mediaData.find(media => media.gameId === game.id) || {};
+                  const homeTeamData = teamsData.find(team => team.school === game.home_team);
+                  const awayTeamData = teamsData.find(team => team.school === game.away_team);
 
                   const homeScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A' && homeScore > awayScore)
                     ? <strong>{homeScore}</strong>
@@ -174,7 +178,7 @@ const GameList = () => {
                       Final Score: {getTeamRanking(game.home_team)} {game.home_team} {homeScoreDisplay} vs {getTeamRanking(game.away_team)} {game.away_team} {awayScoreDisplay}
                     </p>
                   );
-                  
+
                   const spreadDisplay = formattedSpread && <p>Spread: {formattedSpread}</p>;
                   const overUnderDisplay = overUnder !== null && <p>Over/Under: {overUnder}</p>;
 
@@ -183,6 +187,12 @@ const GameList = () => {
                       <div className="game-info">
                         <div className="game-details game-details-left">
                           <div className="team-info">
+                            <span className="team-logo">
+                              <img 
+                                src={awayTeamData?.logos?.[0] || 'placeholder.png'} 
+                                alt={`${game.away_team} logo`} 
+                              />
+                            </span>
                             <span className="team-name">
                               {getTeamRanking(game.away_team)} {game.away_team}
                             </span>
@@ -191,6 +201,12 @@ const GameList = () => {
                             </span>
                           </div>
                           <div className="team-info">
+                            <span className="team-logo">
+                              <img 
+                                src={homeTeamData?.logos?.[0] || 'placeholder.png'} 
+                                alt={`${game.home_team} logo`} 
+                              />
+                            </span>
                             <span className="team-name">
                               at {getTeamRanking(game.home_team)} {game.home_team}
                             </span>
@@ -213,14 +229,15 @@ const GameList = () => {
                       {(spreadDisplay || overUnderDisplay) && (
                         <div className="betting-card">
                           <div className="betting-info">
-                          <p><strong>Betting Lines:</strong></p>{spreadDisplay} {overUnderDisplay}
+                            <p><strong>Betting Lines:</strong></p>
+                            {spreadDisplay} {overUnderDisplay}
                           </div>
                         </div>
                       )}
                       <div className="game-separator"></div>
                     </li>
-
                   );
+                  
                 })}
               </ul>
             </div>
