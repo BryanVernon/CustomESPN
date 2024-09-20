@@ -179,7 +179,7 @@ const GameList = () => {
                     </p>
                   );
 
-                  const spreadDisplay = formattedSpread && <p>Spread: {formattedSpread}</p>;
+                  const spreadDisplay = formattedSpread && <p>{formattedSpread}</p>;
                   const overUnderDisplay = overUnder !== null && <p>Over/Under: {overUnder}</p>;
 
                   return (
