@@ -10,16 +10,34 @@ const GameList = () => {
   const [selectedWeek, setSelectedWeek] = useState('All');
   const [rankings, setRankings] = useState([]);
   const [filterType, setFilterType] = useState('All');
+  const [conference, setConference] = useState('All');
   const [bettingData, setBettingData] = useState([]);
   const [mediaData, setMediaData] = useState([]); 
   const [teamsData, setTeamsData] = useState([]);
+  const [filteredTeams, setFilteredTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState('All');
+  const conferences = ['SEC', 'ACC', 'Big 12', 'Big Ten', 'Ivy League', 'Patriot'];
+
+
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const gamesResponse = await axios.get('https://customespn.onrender.com/api/games');
-        setGames(gamesResponse.data);
+        const teamsResponse = await axios.get('https://customespn.onrender.com/api/teams');
+  
+        // Set the teams data first
+        setTeamsData(teamsResponse.data);
+  
+        // Now filter games based on conferences after setting teamsData
+        const filteredGames = gamesResponse.data.filter(game => {
+          const homeTeamConf = teamsResponse.data.find(team => team.school === game.home_team)?.conference;
+          const awayTeamConf = teamsResponse.data.find(team => team.school === game.away_team)?.conference;
+          return conferences.includes(homeTeamConf) || conferences.includes(awayTeamConf);
+        });
         
+        setGames(filteredGames);
+  
         const recordsResponse = await axios.get('https://customespn.onrender.com/api/records');
         setRecords(recordsResponse.data);
         
@@ -32,18 +50,33 @@ const GameList = () => {
         const mediaResponse = await axios.get('https://customespn.onrender.com/api/media');
         setMediaData(mediaResponse.data);
         
-        const teamsResponse = await axios.get('https://customespn.onrender.com/api/teams');
-        setTeamsData(teamsResponse.data);
-        
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchData();
   }, []);
+  
+
+  useEffect(() => {
+    const initialFilteredTeams = teamsData.filter(team =>
+      conferences.includes(team.conference)
+    );
+    setFilteredTeams(initialFilteredTeams);
+  }, [teamsData]);
+  
+  useEffect(() => {
+    if (conference === 'All') {
+      setFilteredTeams(teamsData.filter(team => 
+        conferences.includes(team.conference)
+      ));
+    } else {
+      setFilteredTeams(teamsData.filter(team => team.conference === conference));
+    }
+  }, [conference, teamsData]);
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -101,23 +134,40 @@ const GameList = () => {
     const days = groupedGames[week];
     const filteredDays = Object.keys(days).reduce((dayAcc, date) => {
       const gamesList = days[date].filter((game) => {
-        const isTexasGame = game.home_team === 'Texas' || game.away_team === 'Texas';
-        const isTop25Game = filterType === 'Top 25' ? isRanked(game.home_team, game.away_team) : true;
+        const homeTeam = teamsData.find(team => team.school === game.home_team);
+        const awayTeam = teamsData.find(team => team.school === game.away_team);
+        
+        const homeTeamConf = homeTeam ? homeTeam.conference : null;
+        const awayTeamConf = awayTeam ? awayTeam.conference : null;
+  
+        const isConferenceGame = conference === 'All' || 
+          (homeTeamConf === conference) || 
+          (awayTeamConf === conference);
+  
         const isWeekMatch = selectedWeek === 'All' || week === `Week ${selectedWeek}`;
-
-        return isWeekMatch && (filterType === 'Texas' ? isTexasGame : isTop25Game);
+        const isTeamMatch = selectedTeam === 'All' || 
+          game.home_team === selectedTeam || 
+          game.away_team === selectedTeam;
+  
+        return isWeekMatch && isConferenceGame && isTeamMatch;
       });
+  
       if (gamesList.length > 0) {
         dayAcc[date] = gamesList;
       }
       return dayAcc;
     }, {});
+    
     if (Object.keys(filteredDays).length > 0) {
       acc[week] = filteredDays;
     }
     return acc;
   }, {});
+  
+  
 
+  // Get unique conferences for the filter dropdown
+// Replace the unique conferences logic
   return (
     <div className="game-list">
       <h1>College Football Schedule</h1>
@@ -133,19 +183,36 @@ const GameList = () => {
             <option key={index} value={index + 1}>
               Week {index + 1}
             </option>
-          ))} 
+          ))}
         </select>
-        <label htmlFor="filter-select"> Filter by Type: </label>
+
+
+        <label htmlFor="conference-select">Filter by Conference: </label>
         <select
-          id="filter-select"
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
+          id="conference-select"
+          value={conference}
+          onChange={(e) => setConference(e.target.value)}
         >
-          <option value="All">All Games</option>
-          <option value="Top 25">Top 25 Games</option>
-          <option value="Texas">Texas Games</option>
+          <option value="All">All Conferences</option>
+          {conferences.map((conf, index) => (
+            <option key={index} value={conf}>{conf}</option>
+          ))}
         </select>
+
+        <label htmlFor="team-select">Filter by Team: </label>
+        <select
+          id="team-select"
+          value={selectedTeam}
+          onChange={(e) => setSelectedTeam(e.target.value)}
+        >
+          <option value="All">All Teams</option>
+          {filteredTeams.map((team, index) => (
+            <option key={index} value={team.school}>{team.school}</option>
+          ))}
+        </select>
+
       </div>
+
       {Object.keys(filteredGames).map((week) => (
         <div key={week} className="game-week">
           <h2>{week}</h2>

@@ -48,6 +48,7 @@ ul {
 .game-separator {
   border-bottom: 1px solid #ccc;
   margin: 5px 0; /* Less space between separator and card */
+  margin-bottom: 20px;
 }
 
 .game-info {
@@ -74,7 +75,7 @@ ul {
 .team-record {
   font-weight: normal; /* Ensure the record isn't bold */
   margin-left: auto;
-  padding-right: 15px;
+  padding-right: 10px;
   white-space: nowrap; /* Prevent text from wrapping */
 }
 
@@ -130,5 +131,14 @@ ul {
   margin-right: 8px; /* Space between logo and team name */
   vertical-align: middle; /* Align with text */
 }
+
+@media (max-width: 420px) {
+  .team-name {
+    font-size: 1.1em; /* Adjust to make it smaller on iPhones */
+    font-weight: bold; /* Make the font weight lighter on smaller screens */
+  }
+}
+
+
 
 

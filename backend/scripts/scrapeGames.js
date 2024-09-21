@@ -1,8 +1,9 @@
+import 'dotenv/config';
 import axios from 'axios';
 import { MongoClient } from 'mongodb';
 
 // MongoDB connection information
-const uri = 'mongodb://localhost:27017';
+const mongoUri = process.env.MONGODB_URI;
 const dbName = 'ncaa';
 const collectionName = 'games';
 const recordsCollectionName = 'records';
@@ -14,7 +15,7 @@ const teamsCollectionName = 'teams';
 const apiKey = 'TWP+UHEydRUg/wmxx8jEEpxsbkOggGjc7gUousSHei5H8kEl3qSTdU1mzg0PLrz4'; // Replace with your actual API key
 
 async function uploadWeek1GamesToMongoDB() {
-  const client = new MongoClient(uri);
+  const client = new MongoClient(mongoUri);
 
   try {
     // Connect to MongoDB
@@ -49,12 +50,10 @@ async function uploadWeek1GamesToMongoDB() {
     // Fetch games data
     
     const year = 2024;
-    const division = 'fbs';
     
     const gamesResponse = await axios.get(`https://api.collegefootballdata.com/games`, {
       params: {
         year,
-        division
       },
       headers: {
         'accept': 'application/json',
@@ -232,6 +231,7 @@ async function uploadWeek1GamesToMongoDB() {
       school: team.school,
       mascot: team.mascot,
       logos: team.logos,
+      conference: team.conference,
 
     }));
     if (teamsData.length === 0) {
