@@ -4,7 +4,7 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "start": "node sevrer.js"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "Bryan Vernon",
