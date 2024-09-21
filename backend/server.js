@@ -11,7 +11,7 @@ const app = express();
 const port = process.env.PORT || 3101;
 
 // Connect to MongoDB
-const mongoUri = 'mongodb://localhost:27017/ncaa';
+const mongoUri = process.env.MONGODB_URI;
 let dbClient;
 let db;
 
