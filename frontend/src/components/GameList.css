@@ -50,6 +50,24 @@ ul {
   margin: 5px 0; /* Less space between separator and card */
   margin-bottom: 20px;
 }
+.filter-container {
+  display: flex;
+  flex-direction: column; /* Stack filters vertically */
+  gap: 10px; /* Space between filters */
+}
+
+.filter {
+  display: flex;
+  gap: 10px; /* Space between conference and team filters */
+  flex-wrap: wrap;
+}
+
+.filter select {
+  width: 120px; /* Ensure selects take full width */
+}
+.filter label {
+  margin-right: 10px; /* Space between label and select */
+}
 
 .game-info {
   display: flex;

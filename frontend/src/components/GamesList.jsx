@@ -171,50 +171,58 @@ const GameList = () => {
   return (
     <div className="game-list">
       <h1>College Football Schedule</h1>
-      <div className="filter">
-        <label htmlFor="week-select">Filter by Week: </label>
-        <select
-          id="week-select"
-          value={selectedWeek}
-          onChange={(e) => setSelectedWeek(e.target.value)}
-        >
-          <option value="All">All</option>
-          {[...Array(12)].map((_, index) => (
-            <option key={index} value={index + 1}>
-              Week {index + 1}
-            </option>
-          ))}
-        </select>
-
-        <label htmlFor="conference-select">Filter by Conference: </label>
-        <select
-          id="conference-select"
-          value={conference}
-          onChange={(e) => setConference(e.target.value)}
-        >
-          <option value="All">All Conferences</option>
-          {conferences.map((conf, index) => (
-            <option key={index} value={conf}>{conf}</option>
-          ))}
-        </select>
-
-        <label htmlFor="team-select">Filter by Team: </label>
-        <select
-          id="team-select"
-          value={selectedTeam}
-          onChange={(e) => setSelectedTeam(e.target.value)}
-        >
-          <option value="All">All Teams</option>
-          {sortedFilteredTeams.map((team, index) => {
-            const teamRanking = getTeamRanking(team.school); // Get ranking for the current team
-            return (
-              <option key={index} value={team.school}>
-                {teamRanking} {team.school} {/* Display the ranking and the team name */}
+      <div className="filter-container">
+        <div className="week-filter">
+          <label htmlFor="week-select">Week: </label>
+          <select
+            id="week-select"
+            value={selectedWeek}
+            onChange={(e) => setSelectedWeek(e.target.value)}
+          >
+            <option value="All">All</option>
+            {[...Array(12)].map((_, index) => (
+              <option key={index} value={index + 1}>
+                Week {index + 1}
               </option>
-            );
-          })}
-        </select>
-      </div>
+            ))}
+          </select>
+        </div>
+        <div className='filter'>
+          <div className="conference-filter">
+            <label htmlFor="conference-select">Conference:</label>
+            <select
+              id="conference-select"
+              value={conference}
+              onChange={(e) => setConference(e.target.value)}
+            >
+              <option value="All">All Conferences</option>
+              {conferences.map((conf, index) => (
+                <option key={index} value={conf}>{conf}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="team-filter">
+            <label htmlFor="team-select">Team:</label>
+            <select
+              id="team-select"
+              value={selectedTeam}
+              onChange={(e) => setSelectedTeam(e.target.value)}
+            >
+              <option value="All">All Teams</option>
+              {sortedFilteredTeams.map((team, index) => {
+                const teamRanking = getTeamRanking(team.school);
+                return (
+                  <option key={index} value={team.school}>
+                    {teamRanking} {team.school}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
+          </div>
+          </div>
+
 
         {Object.keys(filteredGames).map((week) => (
           <div key={week} className="game-week">
