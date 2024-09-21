@@ -13,28 +13,31 @@
   background-color: #f9f9f9;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 15px;
-  margin-bottom: 10px; /* Less space between cards and line */
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 8px;
+  padding-bottom: 0px;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  margin-top: 10px; /* Default margin between cards */
 }
 
 .game-day {
   text-align: center;
-  margin-bottom: 10px;
-  border-bottom: 2px solid #ddd; /* Line under the day */
-  padding-bottom: 5px; /* Space between text and line */
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 5px;
+  margin-bottom: 0px; /* Reduce this value */
+}
+.game-card:first-child {
+  margin-top: 0px !important;
 }
 
-.game-day h3 {
-  margin: 0; /* Remove top margin for better alignment */
-}
+
 
 ul {
   list-style-type: none;
   padding-left: 0;
-  margin-bottom: 0px;
 }
 
 .media-info p {
@@ -51,6 +54,7 @@ ul {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  margin-top: 0px;
 }
 
 .game-details-left {
@@ -71,6 +75,7 @@ ul {
   font-weight: normal; /* Ensure the record isn't bold */
   margin-left: auto;
   padding-right: 15px;
+  white-space: nowrap; /* Prevent text from wrapping */
 }
 
 .game-details-right {
@@ -125,4 +130,5 @@ ul {
   margin-right: 8px; /* Space between logo and team name */
   vertical-align: middle; /* Align with text */
 }
+
 
