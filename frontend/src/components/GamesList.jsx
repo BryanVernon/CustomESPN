@@ -17,22 +17,22 @@ const GameList = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const gamesResponse = await axios.get('http://localhost:3101/api/games');
+        const gamesResponse = await axios.get('https://customespn.onrender.com/api/games');
         setGames(gamesResponse.data);
         
-        const recordsResponse = await axios.get('http://localhost:3101/api/records');
+        const recordsResponse = await axios.get('https://customespn.onrender.com/api/records');
         setRecords(recordsResponse.data);
         
-        const rankingsResponse = await axios.get('http://localhost:3101/api/rankings');
+        const rankingsResponse = await axios.get('https://customespn.onrender.com/api/rankings');
         setRankings(rankingsResponse.data);
       
-        const bettingResponse = await axios.get('http://localhost:3101/api/betting');
+        const bettingResponse = await axios.get('https://customespn.onrender.com/api/betting');
         setBettingData(bettingResponse.data);
         
-        const mediaResponse = await axios.get('http://localhost:3101/api/media');
+        const mediaResponse = await axios.get('https://customespn.onrender.com/api/media');
         setMediaData(mediaResponse.data);
         
-        const teamsResponse = await axios.get('http://localhost:3101/api/teams');
+        const teamsResponse = await axios.get('https://customespn.onrender.com/api/teams');
         setTeamsData(teamsResponse.data);
         
       } catch (err) {
