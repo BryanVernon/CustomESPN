@@ -21,7 +21,8 @@ const mongoUri = process.env.MONGODB_URI;
 let dbClient;
 let db;
 
-MongoClient.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+
+MongoClient.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true,   ssl: true, sslValidate: true })
   .then(client => {
     dbClient = client;
     db = client.db('ncaa');
