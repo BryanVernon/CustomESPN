@@ -18,7 +18,7 @@ const GameList = () => {
   const [selectedTeam, setSelectedTeam] = useState('All');
   const [top25Teams, setTop25Teams] = useState([]);
 
-  const conferences = ['AP Top 25', 'SEC', 'ACC', 'Big 12', 'Big Ten', 'Ivy League', 'Patriot'];
+  const conferences = ['AP Top 25', 'SEC', 'ACC', 'Big 12', 'Big Ten', 'Mountain West', 'Pac-12', 'FBS Independents', 'Mid-American', 'Ivy', 'Patriot'];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,6 +59,15 @@ const GameList = () => {
     };
 
     fetchData();
+  }, []);
+  useEffect(() => {
+    const startOfSeason = new Date('2024-08-31'); // Replace with actual start date of the season
+    const today = new Date();
+    const diffInTime = today.getTime() - startOfSeason.getTime();
+    const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24)); 
+    const currentWeek = Math.floor(diffInDays / 7) + 1;
+
+    setSelectedWeek(currentWeek > 12 ? 'All' : currentWeek);
   }, []);
 
   useEffect(() => {
