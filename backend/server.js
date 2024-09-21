@@ -22,7 +22,7 @@ let dbClient;
 let db;
 
 
-MongoClient.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true,   ssl: true, sslValidate: true })
+MongoClient.connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true})
   .then(client => {
     dbClient = client;
     db = client.db('ncaa');
