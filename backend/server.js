@@ -47,3 +47,6 @@ app.use('/api/teams', teamsRouter);
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
+app.get('/', (req, res) => {
+  res.send('Welcome to the Custom ESPN API!');
+});
