@@ -149,6 +149,57 @@ ul {
   margin-right: 8px; /* Space between logo and team name */
   vertical-align: middle; /* Align with text */
 }
+.final-score-container {
+  display: flex;
+  align-items: center; /* Center items vertically */
+  padding: 10px 0;
+  border-bottom: 1px solid #ccc; /* Optional */
+}
+
+.team-info-left{
+  display: flex;
+  align-items: left; /* Center align */
+}
+
+.team-info-right{
+  display: flex;
+  
+  align-items: right; /* Center align */
+  justify-content: right;
+}
+
+.team-score-home,
+.team-score-away {
+  display: flex;
+  align-items: center; /* Center align */
+  font-size: 2.9rem;
+}
+
+.team-info-left {
+  justify-content: flex-start; /* Align left */
+  flex: 1; /* Flex-grow to fill available space */
+}
+
+.team-info-right {
+  justify-content: flex-end; /* Align right */
+  flex: 1; /* Flex-grow to fill available space */
+}
+
+.vs {
+  margin: 0 10px; /* Add space around "vs" */
+  font-weight: bold; /* Bold for emphasis */
+}
+.large-score {
+  font-size: 2.5em; /* Adjust size as needed */
+  font-weight: bold; /* Optional: make it bold */
+}
+
+.small-score {
+  font-size: 1.5em; /* Regular size */
+  color: rgb(51, 51, 51)
+}
+
+
 
 @media (max-width: 420px) {
   .team-name {

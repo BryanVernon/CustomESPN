@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './GameList.css'; // Import CSS file for styling
-
+import placeholderImage from '../assets/placeholder.png';
 const GameList = () => {
   const [games, setGames] = useState([]);
   const [records, setRecords] = useState([]);
@@ -25,7 +25,7 @@ const GameList = () => {
       try {
         const gamesResponse = await axios.get('https://customespn.onrender.com/api/games');
         const teamsResponse = await axios.get('https://customespn.onrender.com/api/teams');
-
+        console.log(teamsResponse.data);
         setTeamsData(teamsResponse.data);
 
         const filteredGames = gamesResponse.data.filter(game => {
@@ -229,54 +229,77 @@ const GameList = () => {
               })}
             </select>
           </div>
-          </div>
-          </div>
+        </div>
+      </div>
 
+            {Object.keys(filteredGames).map((week) => (
+        <div key={week} className="game-week">
+          <h2>{week}</h2>
+          {Object.keys(filteredGames[week]).map((date) => (
+            <div key={date} className="game-card">
+              <h3 className="game-date">{date}</h3>
+              <ul>
+                {filteredGames[week][date].map((game) => {
+                  const homeRecord = records.find(record => record.team === game.home_team) || {};
+                  const awayRecord = records.find(record => record.team === game.away_team) || {};
+                  const betting = bettingData.find(bet => bet.id === game.id) || {};
+                  const formattedSpread = betting.lines && betting.lines.length > 0 ? betting.lines[0].formattedSpread : null;
+                  const overUnder = betting.lines && betting.lines.length > 0 ? betting.lines[0].overUnder : null;
+                  const homeScore = game.home_points !== undefined ? game.home_points : null; // Change to null
+                  const awayScore = game.away_points !== undefined ? game.away_points : null; // Change to null
+                  const media = mediaData.find(media => media.gameId === game.id) || {};
+                  const homeTeamData = teamsData.find(team => team.school === game.home_team);
+                  const awayTeamData = teamsData.find(team => team.school === game.away_team);
 
-        {Object.keys(filteredGames).map((week) => (
-          <div key={week} className="game-week">
-            <h2>{week}</h2>
-            {Object.keys(filteredGames[week]).map((date) => (
-              <div key={date} className="game-card">
-                <h3 className="game-date">{date}</h3>
-                <ul>
-                  {filteredGames[week][date].map((game) => {
-                    const homeRecord = records.find(record => record.team === game.home_team) || {};
-                    const awayRecord = records.find(record => record.team === game.away_team) || {};
-                    const betting = bettingData.find(bet => bet.id === game.id) || {};
-                    const formattedSpread = betting.lines && betting.lines.length > 0 ? betting.lines[0].formattedSpread : null;
-                    const overUnder = betting.lines && betting.lines.length > 0 ? betting.lines[0].overUnder : null;
-                    const homeScore = game.home_points !== undefined ? game.home_points : 'N/A';
-                    const awayScore = game.away_points !== undefined ? game.away_points : 'N/A';
-                    const media = mediaData.find(media => media.gameId === game.id) || {};
-                    const homeTeamData = teamsData.find(team => team.school === game.home_team);
-                    const awayTeamData = teamsData.find(team => team.school === game.away_team);
+                  // Check if final scores are available
+                  const isFinalScoreAvailable = homeScore !== null && awayScore !== null;
+                  const spreadDisplay = formattedSpread && <p>{formattedSpread}</p>;
+                  const overUnderDisplay = overUnder !== null && <p>Over/Under: {overUnder}</p>;
+                  return (
+                    <li key={game._id}>
+                      {isFinalScoreAvailable ? (
+                        <div className="final-score-container">
+                          <div className="team-info-left">
+                            <div className="team-logo">
+                              <img 
+                                src={awayTeamData?.logos?.[0] || placeholderImage} 
+                                alt={`${game.away_team} logo`} 
+                              />
+                            </div>
+                            <div className="team-details">
+                              <div className="team-name">{getTeamRanking(game.away_team)} {game.away_team}</div>
+                              <div className="team-record">{awayRecord.wins || 0}-{awayRecord.losses || 0}</div>
+                            </div>
+                            </div>
+                            <div className={`team-score-away ${awayScore > homeScore ? 'large-score' : 'small-score'}`}>
+          <strong>{awayScore}</strong>
+        </div>                          
 
-                    const homeScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A' && homeScore > awayScore)
-                      ? <strong>{homeScore}</strong>
-                      : homeScore;
+                          <div className="vs">at</div>
 
-                    const awayScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A' && awayScore > homeScore)
-                      ? <strong>{awayScore}</strong>
-                      : awayScore;
-
-                    const finalScoreDisplay = (homeScore !== 'N/A' && awayScore !== 'N/A' && homeScore !== null && awayScore !== null) && (
-                      <p>
-                        Final Score: {getTeamRanking(game.home_team)} {game.home_team} {homeScoreDisplay} vs {getTeamRanking(game.away_team)} {game.away_team} {awayScoreDisplay}
-                      </p>
-                    );
-
-                    const spreadDisplay = formattedSpread && <p>{formattedSpread}</p>;
-                    const overUnderDisplay = overUnder !== null && <p>Over/Under: {overUnder}</p>;
-
-                    return (
-                      <li key={game._id}>
+                          
+                          <div className={`team-score-home ${homeScore > awayScore ? 'large-score' : 'small-score'}`}>
+          <strong>{homeScore}</strong>
+        </div>                            <div className="team-info-right">
+                            <div className="team-logo">
+                              <img 
+                                src={homeTeamData?.logos?.[0] || placeholderImage} 
+                                alt={`${game.home_team} logo`} 
+                              />
+                            </div>
+                            <div className="team-details">
+                              <div className="team-name">{getTeamRanking(game.home_team)} {game.home_team}</div>
+                              <div className="team-record">{homeRecord.wins || 0}-{homeRecord.losses || 0}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
                         <div className="game-info">
                           <div className="game-details game-details-left">
                             <div className="team-info">
                               <span className="team-logo">
                                 <img 
-                                  src={awayTeamData?.logos?.[0] || 'placeholder.png'} 
+                                  src={awayTeamData?.logos?.[0] || placeholderImage} 
                                   alt={`${game.away_team} logo`} 
                                 />
                               </span>
@@ -290,7 +313,7 @@ const GameList = () => {
                             <div className="team-info">
                               <span className="team-logo">
                                 <img 
-                                  src={homeTeamData?.logos?.[0] || 'placeholder.png'} 
+                                  src={homeTeamData?.logos?.[0] || placeholderImage} 
                                   alt={`${game.home_team} logo`} 
                                 />
                               </span>
@@ -312,27 +335,27 @@ const GameList = () => {
                             )}
                           </div>
                         </div>
-                        {finalScoreDisplay}
-                        {(spreadDisplay || overUnderDisplay) && (
-                          <div className="betting-card">
-                            <div className="betting-info">
-                              <p><strong>Betting Lines:</strong></p>
-                              {spreadDisplay} {overUnderDisplay}
-                            </div>
+                      )}
+                      {(formattedSpread || overUnder) && (
+                        <div className="betting-card">
+                          <div className="betting-info">
+                            <p><strong>Betting Lines:</strong></p>
+                            {spreadDisplay} {overUnderDisplay}
                           </div>
-                        )}
-                        <div className="game-separator"></div>
-                      </li>
-                    );
-                    
-                  })}
-                </ul>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    );
-  };
+                        </div>
+                      )}
+                      <div className="game-separator"></div>
+                    </li>
+                  );
+                  
+                })}
+              </ul>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+};
 
-  export default GameList;
+export default GameList;
