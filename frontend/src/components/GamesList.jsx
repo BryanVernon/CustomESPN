@@ -18,7 +18,7 @@ const GameList = () => {
   const [selectedTeam, setSelectedTeam] = useState('All');
   const [top25Teams, setTop25Teams] = useState([]);
 
-  const conferences = ['AP Top 25', 'SEC', 'ACC', 'Big 12', 'Big Ten', 'Mountain West', 'Pac-12', 'FBS Independents', 'Mid-American', 'Ivy', 'Patriot'];
+  const conferences = ['AP Top 25', 'SEC', 'ACC', 'Big 12', 'Big Ten', 'Mountain West', 'Pac-12', 'FBS Independents', 'Mid-American','Sun Belt', 'Ivy', 'Patriot'];
 
   useEffect(() => {
     const fetchData = async () => {
