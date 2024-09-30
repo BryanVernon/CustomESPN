@@ -156,6 +156,9 @@ ul {
   padding: 10px 0;
   border-bottom: 1px solid #ccc; /* Optional */
 }
+.team-logo{
+  padding-right: 5px;
+}
 
 .team-info-left{
   display: flex;
@@ -235,6 +238,11 @@ ul {
   .vs {
     margin: 0 7px; /* Add space around "vs" */
     font-weight: bold; /* Bold for emphasis */
+  }
+  .team-info-left,
+  .team-info-right {
+    display: flex;
+    flex-direction: column; /* Stack vertically on small screens */
   }
 }
 
