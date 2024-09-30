@@ -38,6 +38,7 @@
 ul {
   list-style-type: none;
   padding-left: 0;
+  
 }
 
 .media-info p {
@@ -163,7 +164,6 @@ ul {
 
 .team-info-right{
   display: flex;
-  
   align-items: right; /* Center align */
   justify-content: right;
 }
@@ -181,8 +181,10 @@ ul {
 }
 
 .team-info-right {
-  justify-content: flex-end; /* Align right */
+  justify-content: right;
+  align-items: right; /* Align right */
   flex: 1; /* Flex-grow to fill available space */
+  text-align: right; /* Right-align for the right team */
 }
 
 .vs {
@@ -192,19 +194,47 @@ ul {
 .large-score {
   font-size: 2.5em; /* Adjust size as needed */
   font-weight: bold; /* Optional: make it bold */
+  padding-right: 5px;
 }
 
 .small-score {
   font-size: 1.5em; /* Regular size */
   color: rgb(51, 51, 51)
 }
+.team-info-left .team-record {
+  font-weight: normal; /* Ensure the record isn't bold */
+  white-space: nowrap; /* Prevent text from wrapping */
+  text-align: left; /* Left-align for the left team */
+}
+
+.team-info-right .team-record {
+  font-weight: normal; /* Ensure the record isn't bold */
+  padding-right: 16px; /* Optional: space between the record and edge */
+  white-space: nowrap; /* Prevent text from wrapping */
+  text-align: right; /* Right-align for the right team */
+}
 
 
 
-@media (max-width: 420px) {
+
+
+@media (max-width: 454px) {
   .team-name {
     font-size: 1.1em; /* Adjust to make it smaller on iPhones */
     font-weight: bold; /* Make the font weight lighter on smaller screens */
+  }
+  .large-score {
+    font-size: 1.4em; /* Adjust size as needed */
+    font-weight: bold; /* Optional: make it bold */
+  }
+  
+  .small-score {
+    font-size: 1em; /* Regular size */
+    color: rgb(51, 51, 51)
+  }
+  .vs {
+    margin: 0 7px; /* Add space around "vs" */
+    font-weight: bold; /* Bold for emphasis */
   }
 }
 
