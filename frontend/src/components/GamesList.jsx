@@ -60,15 +60,30 @@ const GameList = () => {
 
     fetchData();
   }, []);
+
   useEffect(() => {
-    const startOfSeason = new Date('2024-08-31'); // Replace with actual start date of the season
+    const startOfSeason = new Date('2024-08-24'); // Replace with actual start date of the season
     const today = new Date();
-    const diffInTime = today.getTime() - startOfSeason.getTime();
-    const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24)); 
+    const getNextMonday = (date) => {
+      const dayOfWeek = date.getDay(); // Get the day of the week (0 = Sunday, 6 = Saturday)
+      const daysUntilMonday = (8 - dayOfWeek) % 7; // Calculate how many days until the next Monday
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate() + daysUntilMonday);
+    };
+  
+    // Get the date of the first Monday of the season
+    const firstMonday = getNextMonday(startOfSeason);
+  
+    // Calculate the difference in time between today and the first Monday
+    const diffInTime = today.getTime() - firstMonday.getTime();
+    const diffInDays = Math.floor((diffInTime/ (1000 * 3600 * 24)));
+  
+    // Calculate the number of full weeks (Mondays) that have passed since the first Monday
     const currentWeek = Math.floor(diffInDays / 7) + 1;
 
-    setSelectedWeek(currentWeek > 12 ? 'All' : currentWeek);
+    setSelectedWeek(currentWeek);
   }, []);
+
+  
 
   useEffect(() => {
     const initialFilteredTeams = teamsData.filter(team =>
