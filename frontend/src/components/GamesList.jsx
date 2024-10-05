@@ -143,19 +143,25 @@ const GameList = () => {
   const groupedGames = games.reduce((acc, game) => {
     const week = `Week ${game.week || 'N/A'}`;
     const date = formatDate(game.start_date);
-    const key = `${week}-${date}`;
-
+  
     if (!acc[week]) {
       acc[week] = {};
     }
-
+  
     if (!acc[week][date]) {
       acc[week][date] = [];
     }
-
+  
     acc[week][date].push(game);
+  
+    // Sort games within each date by start time
+    acc[week][date].sort((a, b) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
+  
     return acc;
   }, {});
+  
+
+
   const filteredGames = Object.keys(groupedGames).reduce((acc, week) => {
     const days = groupedGames[week];
     const filteredDays = Object.keys(days).reduce((dayAcc, date) => {
