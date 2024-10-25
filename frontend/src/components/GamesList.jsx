@@ -20,11 +20,15 @@ const GameList = () => {
 
   const conferences = ['AP Top 25', 'SEC', 'ACC', 'Big 12', 'Big Ten', 'Mountain West', 'Pac-12', 'FBS Independents', 'Mid-American','Sun Belt', 'Ivy', 'Patriot'];
 
+  const baseURL = process.env.NODE_ENV === 'production' 
+    ? 'https://customespn.onrender.com'
+    : 'http://localhost:3101';
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const gamesResponse = await axios.get('https://customespn.onrender.com/api/games');
-        const teamsResponse = await axios.get('https://customespn.onrender.com/api/teams');
+        const gamesResponse = await axios.get(`${baseURL}/api/games`);
+        const teamsResponse = await axios.get(`${baseURL}/api/teams`);
         console.log(teamsResponse.data);
         setTeamsData(teamsResponse.data);
 
@@ -36,21 +40,20 @@ const GameList = () => {
 
         setGames(filteredGames);
 
-        const recordsResponse = await axios.get('https://customespn.onrender.com/api/records');
+        const recordsResponse = await axios.get(`${baseURL}/api/records`);
         setRecords(recordsResponse.data);
 
-        const rankingsResponse = await axios.get('https://customespn.onrender.com/api/rankings');
+        const rankingsResponse = await axios.get(`${baseURL}/api/rankings`);
         setRankings(rankingsResponse.data);
         const teamLocations = rankingsResponse.data.map(ranking => ranking.team.location);
         setTop25Teams(teamLocations);
         setFilteredTeams(teamsResponse.data.filter(team => teamLocations.includes(team.school)));
 
-        const bettingResponse = await axios.get('https://customespn.onrender.com/api/betting');
+        const bettingResponse = await axios.get(`${baseURL}/api/betting`);
         setBettingData(bettingResponse.data);
 
-        const mediaResponse = await axios.get('https://customespn.onrender.com/api/media');
+        const mediaResponse = await axios.get(`${baseURL}/api/media`);
         setMediaData(mediaResponse.data);
-
       } catch (err) {
         setError(err.message);
       } finally {
