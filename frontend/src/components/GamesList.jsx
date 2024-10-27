@@ -9,7 +9,6 @@ const GameList = () => {
   const [error, setError] = useState(null);
   const [selectedWeek, setSelectedWeek] = useState('All');
   const [rankings, setRankings] = useState([]);
-  const [filterType, setFilterType] = useState('All');
   const [conference, setConference] = useState('All');
   const [bettingData, setBettingData] = useState([]);
   const [mediaData, setMediaData] = useState([]);
@@ -17,9 +16,13 @@ const GameList = () => {
   const [filteredTeams, setFilteredTeams] = useState([]);
   const [selectedTeam, setSelectedTeam] = useState('All');
   const [top25Teams, setTop25Teams] = useState([]);
-
+  const [currentWeek, setCurrentWeek] = useState(0);
+  
+  
+  const maxWeek = Math.max(...games.map(game => game.week || 0));
+  
   const conferences = ['AP Top 25', 'SEC', 'ACC', 'Big 12', 'Big Ten', 'Mountain West', 'Pac-12', 'FBS Independents', 'Mid-American','Sun Belt', 'Ivy', 'Patriot'];
-
+  
   const baseURL = process.env.NODE_ENV === 'production' 
     ? 'https://customespn.onrender.com'
     : 'http://localhost:3101';
@@ -81,11 +84,15 @@ const GameList = () => {
     const diffInDays = Math.floor((diffInTime/ (1000 * 3600 * 24)));
   
     // Calculate the number of full weeks (Mondays) that have passed since the first Monday
-    const currentWeek = Math.floor(diffInDays / 7) + 1;
-
-    setSelectedWeek(currentWeek);
+    const week = Math.floor(diffInDays / 7) + 1;
+    setCurrentWeek(week);
+    setSelectedWeek(week);
   }, []);
-
+  useEffect(() => {
+    if (selectedTeam !== 'All') {
+      setSelectedWeek('All'); // Reset selected week when a team is selected
+    }
+  }, [selectedTeam]);
   
 
   useEffect(() => {
@@ -163,11 +170,30 @@ const GameList = () => {
     return acc;
   }, {});
   
+  // Sort weeks and dates in chronological order
+  const sortedGroupedGames = Object.keys(groupedGames).reduce((acc, week) => {
+    acc[week] = Object.keys(groupedGames[week])
+      .sort((a, b) => new Date(a) - new Date(b)) // Sort dates in ascending order
+      .reduce((sortedDays, date) => {
+        sortedDays[date] = groupedGames[week][date];
+        return sortedDays;
+      }, {});
+  
+    return acc;
+  }, {});
+  
+  
 
 
-  const filteredGames = Object.keys(groupedGames).reduce((acc, week) => {
+  const filteredGames = Object.keys(groupedGames).sort((a, b) => {
+    const weekA = parseInt(a.split(' ')[1]);
+    const weekB = parseInt(b.split(' ')[1]);
+    return weekA - weekB; // Sort weeks numerically
+  }).reduce((acc, week) => {
     const days = groupedGames[week];
-    const filteredDays = Object.keys(days).reduce((dayAcc, date) => {
+    const filteredDays = Object.keys(days).sort((a, b) => {
+      return new Date(a) - new Date(b); // Sort dates in ascending order
+    }).reduce((dayAcc, date) => {
       const gamesList = days[date].filter((game) => {
         const isTop25Game = top25Teams.includes(game.home_team) || top25Teams.includes(game.away_team);
         const isWeekMatch = selectedWeek === 'All' || week === `Week ${selectedWeek}`;
@@ -205,7 +231,7 @@ const GameList = () => {
     <div className="game-list">
       <h1>College Football Schedule</h1>
       <div className="filter-container">
-        <div className="week-filter">
+      <div className="week-filter">
           <label htmlFor="week-select">Week: </label>
           <select
             id="week-select"
@@ -213,9 +239,9 @@ const GameList = () => {
             onChange={(e) => setSelectedWeek(e.target.value)}
           >
             <option value="All">All</option>
-            {[...Array(12)].map((_, index) => (
+            {[...Array(maxWeek)].map((_, index) => (
               <option key={index} value={index + 1}>
-                Week {index + 1}
+                {index + 1 === currentWeek ? 'Current Week' : `Week ${index + 1}`}
               </option>
             ))}
           </select>

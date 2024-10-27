@@ -7,6 +7,7 @@ import rankingsRouter from './routes/rankings.js';
 import bettingRouter from './routes/betting.js'; 
 import mediaRouter from './routes/media.js'; 
 import teamsRouter from './routes/teams.js'; 
+import compression from 'compression';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -16,8 +17,8 @@ const port = process.env.PORT || 3101;
 
 // Middleware
 app.use(cors());
+app.use(compression()); // Use compression middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
 // Connect to MongoDB
 const mongoUri = process.env.MONGODB_URI;

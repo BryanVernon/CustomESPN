@@ -1,7 +1,7 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import axios from 'axios';
 import { MongoClient } from 'mongodb';
-
+dotenv.config();
 // MongoDB connection information
 const mongoUri = process.env.MONGODB_URI;
 const dbName = 'ncaa';
