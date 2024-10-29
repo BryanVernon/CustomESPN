@@ -32,7 +32,7 @@ const GameList = () => {
       try {
         const gamesResponse = await axios.get(`${baseURL}/api/games`);
         const teamsResponse = await axios.get(`${baseURL}/api/teams`);
-        console.log(teamsResponse.data);
+        console.log(gamesResponse.data);
         setTeamsData(teamsResponse.data);
 
         const filteredGames = gamesResponse.data.filter(game => {

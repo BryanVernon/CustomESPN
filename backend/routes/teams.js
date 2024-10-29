@@ -1,13 +1,10 @@
+// routes/games.js
 import express from 'express';
+import { fetchRecords } from '../utils/dbUtils.js'; // Adjust the path as necessary
+
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  try {
-    const games = await req.db.collection('teams').find({}).toArray();
-    res.json(games);
-  } catch (err) {
-    res.status(500).send(err.message);
-  }
-});
+// Route to get all games from the 'games' collection
+router.get('/', fetchRecords('teams'));
 
 export default router;
