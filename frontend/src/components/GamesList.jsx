@@ -23,9 +23,7 @@ const GameList = () => {
   
   const conferences = ['AP Top 25', 'SEC', 'ACC', 'Big 12', 'Big Ten', 'Mountain West', 'Pac-12', 'FBS Independents', 'Mid-American','Sun Belt', 'Ivy', 'Patriot'];
   
-  const baseURL = process.env.NODE_ENV === 'production' 
-    ? 'https://customespn.onrender.com'
-    : 'http://localhost:3101';
+  const baseURL = 'http://100.86.239.124:3101';
 
   useEffect(() => {
     const fetchData = async () => {
